@@ -19,6 +19,8 @@ export default function App() {
 setActesCulturals(
   filteredData.map((acteCultural) => {
     return {
+      code:acteCultural.codi,
+      dataini:acteCultural.data_inici,
       datafi: acteCultural.data_fi,
       title: acteCultural.denominaci,
       description: acteCultural.descripcio,
@@ -36,15 +38,27 @@ setActesCulturals(
   
         // Guarda los datos en Firebase
         for (let acteCultural of filteredData) {
+          let linkImages =[];
+          if(acteCultural.imatges){
+          const images = acteCultural.imatges.split(',');
+          linkImages = images.map(image => `https://agenda.cultura.gencat.cat${image}`);
+          }
+          let linkevents=[];
+          if(acteCultural.enlla_os){
+          linkevents = acteCultural.enlla_os.split(',');
+          }
+          
           const res = await addDoc(collection(db, 'event'), {
+            code:acteCultural.codi,
+            dataini:acteCultural.data_inici || ' ',
             datafi: acteCultural.data_fi,
             title: acteCultural.denominaci,
-            description: acteCultural.descripcio,
-            infoCost: acteCultural.entrades || '',
-            hour: acteCultural.horari || '',
-            listInterests: acteCultural.tags_mbits.split(',').map(tag => tag.split('/')[1]) || '',
-            linkEvent: acteCultural.enlla_os || '',
-            linkImage: acteCultural.imatges || '',
+            description: acteCultural.descripcio && acteCultural.descripcio.replace(/&nbsp;/g, ' '),
+            infoCost: acteCultural.entrades && acteCultural.entrades.replace(/&nbsp;/g, ' ') || '',
+            hour: acteCultural.horari && acteCultural.horari.replace(/&nbsp;/g, ' ') || '',
+            listInterests: acteCultural.tags_mbits.split(',').map(tag =>tag.split('/')[1]) || '',
+            linkEvent: linkevents,
+            linkImage: linkImages,
             adress: acteCultural.adre_a || '',
             longitud: acteCultural.longitud || '',
             latitud: acteCultural.latitud || ''
